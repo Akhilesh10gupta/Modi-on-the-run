@@ -30,7 +30,6 @@
         this.game.load.image("restartBtn", "assets/restart-btn.png");
       },
       create: function() {
-        // Set scaling in create for Phaser 2.x!
         this.game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
         this.game.scale.pageAlignHorizontally = true;
         this.game.scale.pageAlignVertically = true;
@@ -44,7 +43,7 @@
         this.logo = this.game.add.sprite(this.game.world.centerX, 20, 'logo');
         this.logo.anchor.setTo(0.5, 0);
 
-        this.startBtn = this.game.add.button(this.game.world.centerX, this.game.world.height - 120, 'startbtn', this.startClicked, this);
+        this.startBtn = this.game.add.button(this.game.world.centerX, this.game.height * 0.84, 'startbtn', this.startClicked, this);
         this.startBtn.anchor.setTo(0.5, 0);
 
         this.game.scale.setResizeCallback(this.resizeUI, this);
@@ -53,25 +52,31 @@
         this.game.state.start("instructions");
       },
       resizeUI: function() {
-        if (this.logo) this.logo.x = this.game.world.centerX;
-        if (this.startBtn) {
-          this.startBtn.x = this.game.world.centerX;
-          this.startBtn.y = this.game.world.height - 120;
-        }
         if (this.bg) {
           this.bg.width = this.game.width;
           this.bg.height = this.game.height;
+        }
+        if (this.logo) this.logo.x = this.game.world.centerX;
+        if (this.startBtn) {
+          this.startBtn.x = this.game.world.centerX;
+          this.startBtn.y = this.game.height * 0.84;
         }
       }
     },
 
     instructions: {
       create: function() {
+        // Add sky color rect behind bg to avoid repeat visuals
+        var graphics = this.game.add.graphics();
+        graphics.beginFill(0x87CEEB); // light blue sky color
+        graphics.drawRect(0, 0, this.game.width, this.game.height);
+        graphics.endFill();
+
         this.bg = this.game.add.tileSprite(0, 0, this.game.width, this.game.height, 'background');
-        this.instructions = this.game.add.sprite(this.game.world.centerX, 30, 'instructions');
+        this.instructions = this.game.add.sprite(this.game.world.centerX, this.game.height * 0.05, 'instructions');
         this.instructions.anchor.setTo(0.5, 0);
 
-        this.playBtn = this.game.add.button(this.game.world.centerX, this.game.world.height - 120, 'playbtn', this.playClicked, this);
+        this.playBtn = this.game.add.button(this.game.world.centerX, this.game.height * 0.84, 'playbtn', this.playClicked, this);
         this.playBtn.anchor.setTo(0.5, 0);
 
         this.game.scale.setResizeCallback(this.resizeUI, this);
@@ -80,14 +85,14 @@
         this.game.state.start("play");
       },
       resizeUI: function() {
-        if (this.instructions) this.instructions.x = this.game.world.centerX;
-        if (this.playBtn) {
-          this.playBtn.x = this.game.world.centerX;
-          this.playBtn.y = this.game.world.height - 120;
-        }
         if (this.bg) {
           this.bg.width = this.game.width;
           this.bg.height = this.game.height;
+        }
+        if (this.instructions) this.instructions.x = this.game.world.centerX;
+        if (this.playBtn) {
+          this.playBtn.x = this.game.world.centerX;
+          this.playBtn.y = this.game.height * 0.84;
         }
       }
     },
@@ -105,6 +110,12 @@
         this.music = this.game.add.audio("drivin-home");
         this.music.loop = true;
         this.music.play();
+
+        // Add sky blue behind background to prevent visual seam
+        var graphics = this.game.add.graphics();
+        graphics.beginFill(0x87CEEB);
+        graphics.drawRect(0, 0, this.game.width, this.game.height);
+        graphics.endFill();
 
         this.bg = this.game.add.tileSprite(0, 0, this.game.width, this.game.height, 'background');
         this.bg.fixedToCamera = true;
@@ -228,17 +239,24 @@
 
     gameOver: {
       create: function() {
+        // sky-color fill to avoid repeated background visual glitches
+        var graphics = this.game.add.graphics();
+        graphics.beginFill(0x87CEEB);
+        graphics.drawRect(0, 0, this.game.width, this.game.height);
+        graphics.endFill();
+
         this.bg = this.game.add.tileSprite(0, 0, this.game.width, this.game.height, 'background');
-        this.msg = this.game.add.sprite(this.game.world.centerX, 50, 'game-over');
+
+        this.msg = this.game.add.sprite(this.game.world.centerX, this.game.height * 0.05, 'game-over');
         this.msg.anchor.setTo(0.5, 0);
 
-        this.score = this.game.add.text(this.game.world.centerX, 200, 'Score: ' + Math.floor(gameScore), {
+        this.score = this.game.add.text(this.game.world.centerX, this.game.height * 0.30, 'Score: ' + Math.floor(gameScore), {
           font: "42px Arial",
           fill: "white"
         });
         this.score.anchor.setTo(0.5, 0);
 
-        this.restartBtn = this.game.add.button(this.game.world.centerX, 280, 'restartBtn', this.restartClicked, this);
+        this.restartBtn = this.game.add.button(this.game.world.centerX, this.game.height * 0.55, 'restartBtn', this.restartClicked, this);
         this.restartBtn.anchor.setTo(0.5, 0);
 
         this.game.scale.setResizeCallback(this.resizeUI, this);
