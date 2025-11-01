@@ -1,10 +1,45 @@
 (function() {
+  var width = window.innerWidth;
+  var height = window.innerHeight;
   var gameScore = 0;
   var highScore = 0;
 
   var SantaGame = {
     init: function() {
-      this.game = new Phaser.Game(window.innerWidth, window.innerHeight, Phaser.CANVAS, 'game');
+      this.game = new Phaser.Game(width, height, Phaser.CANVAS, 'game');
+
+      // Resize handler to adjust game size on window resize
+      window.addEventListener('resize', () => {
+        var w = window.innerWidth;
+        var h = window.innerHeight;
+        this.game.scale.setGameSize(w, h);
+        // Adjust background and UI elements that depend on size
+        if (this.bg) {
+          this.bg.width = w;
+          this.bg.height = h;
+        }
+        if (this.startBtn) {
+          this.startBtn.x = this.game.world.width / 2 - 159;
+          this.startBtn.y = this.game.world.height - 120;
+        }
+        if (this.playBtn) {
+          this.playBtn.x = this.game.world.width / 2 - 159;
+          this.playBtn.y = this.game.world.height - 120;
+        }
+        if (this.restartBtn) {
+          this.restartBtn.x = this.game.world.width / 2 - 183.5;
+          this.restartBtn.y = 280;
+        }
+        if (this.score) {
+          this.score.x = 20;
+          this.score.y = 20;
+        }
+        if (this.highScore) {
+          this.highScore.x = 20;
+          this.highScore.y = 45;
+        }
+      });
+
       this.game.state.add("load", this.load);
       this.game.state.add("play", this.play);
       this.game.state.add("title", this.title);
@@ -30,65 +65,37 @@
         this.game.load.image("restartBtn", "assets/restart-btn.png");
       },
       create: function() {
-        // Set scaling in create for Phaser 2.x!
-        this.game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
-        this.game.scale.pageAlignHorizontally = true;
-        this.game.scale.pageAlignVertically = true;
         this.game.state.start("title");
       }
     },
 
     title: {
       create: function() {
-        this.bg = this.game.add.tileSprite(0, 0, this.game.width, this.game.height, 'background');
-        this.logo = this.game.add.sprite(this.game.world.centerX, 20, 'logo');
-        this.logo.anchor.setTo(0.5, 0);
-
-        this.startBtn = this.game.add.button(this.game.world.centerX, this.game.world.height - 120, 'startbtn', this.startClicked, this);
-        this.startBtn.anchor.setTo(0.5, 0);
-
-        this.game.scale.setResizeCallback(this.resizeUI, this);
+        this.bg = this.game.add.tileSprite(0, 0, width, height, 'background');
+        this.logo = this.game.add.sprite(this.game.world.width / 2 - 158, 20, 'logo');
+        this.logo.alpha = 0;
+        this.game.add.tween(this.logo).to({ alpha: 1 }, 1000, Phaser.Easing.Linear.None, true, 0);
+        this.startBtn = this.game.add.button(this.game.world.width / 2 - 159, this.game.world.height - 120, 'startbtn', this.startClicked, this);
+        this.startBtn.alpha = 0;
+        this.game.add.tween(this.startBtn).to({ alpha: 1 }, 1000, Phaser.Easing.Linear.None, true, 1000);
       },
       startClicked: function() {
         this.game.state.start("instructions");
-      },
-      resizeUI: function() {
-        if (this.logo) this.logo.x = this.game.world.centerX;
-        if (this.startBtn) {
-          this.startBtn.x = this.game.world.centerX;
-          this.startBtn.y = this.game.world.height - 120;
-        }
-        if (this.bg) {
-          this.bg.width = this.game.width;
-          this.bg.height = this.game.height;
-        }
       }
     },
 
     instructions: {
       create: function() {
-        this.bg = this.game.add.tileSprite(0, 0, this.game.width, this.game.height, 'background');
-        this.instructions = this.game.add.sprite(this.game.world.centerX, 30, 'instructions');
-        this.instructions.anchor.setTo(0.5, 0);
-
-        this.playBtn = this.game.add.button(this.game.world.centerX, this.game.world.height - 120, 'playbtn', this.playClicked, this);
-        this.playBtn.anchor.setTo(0.5, 0);
-
-        this.game.scale.setResizeCallback(this.resizeUI, this);
+        this.bg = this.game.add.tileSprite(0, 0, width, height, 'background');
+        this.instructions = this.game.add.sprite(this.game.world.width / 2 - 292, 30, 'instructions');
+        this.instructions.alpha = 0;
+        this.game.add.tween(this.instructions).to({ alpha: 1 }, 800, Phaser.Easing.Linear.None, true, 0);
+        this.playBtn = this.game.add.button(this.game.world.width / 2 - 159, this.game.world.height - 120, 'playbtn', this.playClicked, this);
+        this.playBtn.alpha = 0;
+        this.game.add.tween(this.playBtn).to({ alpha: 1 }, 800, Phaser.Easing.Linear.None, true, 800);
       },
       playClicked: function() {
         this.game.state.start("play");
-      },
-      resizeUI: function() {
-        if (this.instructions) this.instructions.x = this.game.world.centerX;
-        if (this.playBtn) {
-          this.playBtn.x = this.game.world.centerX;
-          this.playBtn.y = this.game.world.height - 120;
-        }
-        if (this.bg) {
-          this.bg.width = this.game.width;
-          this.bg.height = this.game.height;
-        }
       }
     },
 
@@ -106,7 +113,7 @@
         this.music.loop = true;
         this.music.play();
 
-        this.bg = this.game.add.tileSprite(0, 0, this.game.width, this.game.height, 'background');
+        this.bg = this.game.add.tileSprite(0, 0, width, height, 'background');
         this.bg.fixedToCamera = true;
         this.bg.autoScroll(-this.gameSpeed / 6, 0);
 
@@ -165,7 +172,6 @@
             fill: "white"
           });
         }
-        this.game.scale.setResizeCallback(this.resizeUI, this);
       },
 
       update: function() {
@@ -183,12 +189,10 @@
             this.endGame();
           }
 
-          if (
-            (this.cursors.up.isDown && this.santa.body.touching.down) ||
-            (this.spacebar.isDown && this.santa.body.touching.down) ||
-            (this.game.input.mousePointer.isDown && this.santa.body.touching.down) ||
-            (this.game.input.pointer1.isDown && this.santa.body.touching.down)
-          ) {
+          if ((this.cursors.up.isDown && this.santa.body.touching.down) ||
+              (this.spacebar.isDown && this.santa.body.touching.down) ||
+              (this.game.input.mousePointer.isDown && this.santa.body.touching.down) ||
+              (this.game.input.pointer1.isDown && this.santa.body.touching.down)) {
             this.jumpSound = this.game.add.audio("hop");
             this.jumpSound.play();
             this.santa.body.velocity.y = -500;
@@ -217,43 +221,27 @@
         this.music = this.game.add.audio("modi-ji-bkl");
         this.music.play();
         this.game.state.start("gameOver");
-      },
-      resizeUI: function() {
-        if (this.bg) {
-          this.bg.width = this.game.width;
-          this.bg.height = this.game.height;
-        }
       }
     },
 
     gameOver: {
       create: function() {
-        this.bg = this.game.add.tileSprite(0, 0, this.game.width, this.game.height, 'background');
-        this.msg = this.game.add.sprite(this.game.world.centerX, 50, 'game-over');
-        this.msg.anchor.setTo(0.5, 0);
-
-        this.score = this.game.add.text(this.game.world.centerX, 200, 'Score: ' + Math.floor(gameScore), {
+        this.bg = this.game.add.tileSprite(0, 0, width, height, 'background');
+        this.msg = this.game.add.sprite(this.game.world.width / 2 - 280.5, 50, 'game-over');
+        this.msg.alpha = 0;
+        this.game.add.tween(this.msg).to({ alpha: 1 }, 600, Phaser.Easing.Linear.None, true, 0);
+        this.score = this.game.add.text(this.game.world.width / 2 - 100, 200, 'Score: ' + Math.floor(gameScore), {
           font: "42px Arial",
           fill: "white"
         });
-        this.score.anchor.setTo(0.5, 0);
-
-        this.restartBtn = this.game.add.button(this.game.world.centerX, 280, 'restartBtn', this.restartClicked, this);
-        this.restartBtn.anchor.setTo(0.5, 0);
-
-        this.game.scale.setResizeCallback(this.resizeUI, this);
+        this.score.alpha = 0;
+        this.game.add.tween(this.score).to({ alpha: 1 }, 600, Phaser.Easing.Linear.None, true, 600);
+        this.restartBtn = this.game.add.button(this.game.world.width / 2 - 183.5, 280, 'restartBtn', this.restartClicked, this);
+        this.restartBtn.alpha = 0;
+        this.game.add.tween(this.restartBtn).to({ alpha: 1 }, 600, Phaser.Easing.Linear.None, true, 1000);
       },
       restartClicked: function() {
         this.game.state.start("play");
-      },
-      resizeUI: function() {
-        if (this.bg) {
-          this.bg.width = this.game.width;
-          this.bg.height = this.game.height;
-        }
-        if (this.msg) this.msg.x = this.game.world.centerX;
-        if (this.score) this.score.x = this.game.world.centerX;
-        if (this.restartBtn) this.restartBtn.x = this.game.world.centerX;
       }
     }
   };
